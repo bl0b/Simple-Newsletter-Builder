@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+    </style>
+    <script src="jquery.js"></script>
+    <script src="jquery-ui.min.js"></script>
+    <script src="widgets.js"></script>
+    <link rel="stylesheet" href="../css/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="../css/widgets.css"/>
+    <script>
+        $(document).ready(function () {
+            $('#sort').genList();
+            $('#settings').settings();
+            $('body > button').click(function() {
+                console.log($('#sort').genList('render'));
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="settings"></div>
+    <div id="sort" style="border: 1px solid black;"></div>
+    <button>Generate</button>
+    <div id="output"></div>
+</body>
+</html>

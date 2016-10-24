@@ -1,0 +1,47 @@
+.nl-editor {
+    width: 100%;
+    margin: .5em 0;
+}
+
+.nl-editor-header {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: .1em .2em;
+    background: #26b3f7;
+    text-align: center;
+}
+
+.nl-editor-destroy {
+    float: right;
+}
+
+.nl-editor-contents {
+    background: #0b93d5;
+    padding: .5em;
+}
+
+.nl-editor-contents.hidden {
+    display: none;
+    visibility: hidden;
+}
+
+.nl-editor-list-adder-header {
+    display: block;
+    text-align: center;
+    background: #26b3f7;
+    margin: 0;
+}
+
+.nl-editor-list-adder-contents {
+    width: 100%;
+    padding: .1em .5em;
+}
+
+.nl-editor-list-adder-link {
+    display: inline-block;
+    text-align: center;
+    border: ridge #0b93d5;
+    margin: .1em .2em;
+    width: 14%;
+}

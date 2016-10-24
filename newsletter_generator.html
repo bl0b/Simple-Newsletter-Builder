@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Generate book table</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css"/>
+    <script>
+        $(document).ready(function() {
+            $('[name=generate]').click(function() {
+                var cover = $('[name=cover]').val();
+                var descr = '      <p style="margin-top: 0;">' + $('[name=descr]').val().trim().replace(/ *[\r\n]+/g, '</p>\n      <p>') + '</p>\n';
+                var names = $('[name=seller_name]');
+                var urls = $('[name=seller_url]');
+                var links = '';
+
+                for (var i = 0; i < 4; ++i) {
+                    var name = $(names[i]).val();
+                    var url = $(urls[i]).val();
+                    if (name != '') {
+                        links += `\n        <td>[<a target="_blank" href="${url}" style="color: #cbe8ff">${name}</a>]</td>`;
+                    }
+                }
+                $('[name=output]').val(`<table style="color: #ccc; width: 100%; font-family: helvetica; font-size: 14px; margin-bottom: 1em;" cellpadding="0" cellspacing="0">
+                <tr>
+                <td style="width: 200px; vertical-align: top;">
+                <img alt="" src="${cover}"/>
+                </td>
+                <td style="padding: 0 .5em 0 .5em; vertical-align: top;">
+                    ${descr}
+                <hr size="1" style="color: #cbe8ff; width: 250px; margin: .5em auto .25em auto;"/>
+                <table style="width: 100%; color: #ccc; text-align: center;">
+                <tr>${links}
+                </tr>
+                </table>
+                </td>
+                </tr>
+                </table>`);
+            });
+        });
+    </script>
+</head>
+<body>
+
+<input name="cover" type="text" placeholder="Cover URL"/>
+<hr>
+<textarea name="descr" placeholder="Description" style="width: 100%; height: 20em;"></textarea>
+<hr>
+<input name="seller_name" placeholder="shop"/><input name="seller_url" placeholder="book url"/>
+<hr>
+<input name="seller_name" placeholder="shop"/><input name="seller_url" placeholder="book url"/>
+<hr>
+<input name="seller_name" placeholder="shop"/><input name="seller_url" placeholder="book url"/>
+<hr>
+<input name="seller_name" placeholder="shop"/><input name="seller_url" placeholder="book url"/>
+<hr>
+<div style="text-align: center; margin: .5em;"><button name="generate">GENERATE!</button></div>
+<textarea name="output" contenteditable="false" style="width: 100%; height: 30em;"></textarea>
+</body>
+</html>
