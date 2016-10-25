@@ -1,5 +1,5 @@
 .nl-editor {
-    width: 100%;
+    width: auto;
     margin: .5em 0;
 }
 
@@ -10,20 +10,36 @@
     padding: .1em .2em;
     background: #26b3f7;
     text-align: center;
+    border-top-left-radius: 1em;
+    border-top-right-radius: 1em;
+}
+
+.folded .nl-editor-header {
+    /*padding-bottom: .5em;*/
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
 }
 
 .nl-editor-destroy {
     float: right;
+    margin-right: 1em;
 }
 
 .nl-editor-contents {
-    background: #0b93d5;
+    background: #00627e;
     padding: .5em;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+    border: 2px solid #26b3f7;
 }
 
-.nl-editor-contents.hidden {
+.folded .nl-editor-contents {
     display: none;
     visibility: hidden;
+}
+
+.nl-editor-list {
+    width: auto;
 }
 
 .nl-editor-list-adder-header {
@@ -43,5 +59,47 @@
     text-align: center;
     border: ridge #0b93d5;
     margin: .1em .2em;
-    width: 14%;
+    width: 11%;
+}
+
+.nl-editor-list-contents {
+}
+
+label {
+    display: inline-block;
+    width: 35%;
+    margin: .5em 0 .5em 2em;
+    padding: .5em .5em .5em 1em;
+    border: 1px solid white;
+    font-family: Helvetica;
+    font-size: 16px;
+    border-right: none;
+    color: white;
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+}
+
+input, textarea, select {
+    width: 45%;
+    padding: .5em;
+    margin: .5em 0;
+    border: 1px solid white;
+    font-family: Helvetica;
+    font-size: 16px;
+    border-left: none;
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 1em;
+}
+
+input[type=color] {
+    padding-top: 4px;
+    padding-bottom: 7px;
+}
+
+textarea, label.textarea {
+    height: 100px;
+}
+
+label.textarea {
+    vertical-align: top;
 }

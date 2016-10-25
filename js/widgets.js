@@ -9,10 +9,20 @@ var settings = {
     link: '#abcdef',
     textfont: 'helvetica',
     titlefont: 'georgia',
-    firstparstyle: 'margin-top: 0;'
+    firstparstyle: 'margin-top: 0;',
+    book_cover_width: '200px',
+    book_font_size: '14px',
+    book_font_color: '#ccc',
+    book_hr_color: '#cbe8ff'
 };
 
-function render_link(text, url) {
+var global_render = function() {}
+
+function render_image(alt, url) {
+
+}
+
+function render_link(text, url, img='', img_pos='') {
     return `<a target="_blank" style="color: ${settings.link}; font: ${settings.textfont}" href="${url}">${text}</a>`;
 }
 
@@ -44,37 +54,49 @@ function add_editor(w, x) {
     } else {
         el = $(`<input type="${x.type}" name="${x.name}" placeholder="${x.placeholder}" />`);
     }
-    that.contents.append($(`<label for="${x.name}">${x.placeholder}</label>`));
+    var l = $(`<label for="${x.name}">${x.placeholder}</label>`);
+    that.contents.append(l);
+    if (x.type == 'textarea') {
+        l.addClass('textarea');
+    }
     that.contents.append(el);
-    that._on(el, {change: '_refresh'});
+    var thatel = $(that.element);
+    el.change(function() { global_render(); });
 };
 
 
 
 $.widget('nle.base', {
     options: {
-        change: null
+        change: null,
+        destroyable: true
     },
     editors: [],
     editor_name: '[abstract editor]',
+    class: 'base',
 
     _create: function() {
         var that = this;
-        var header = $(`<h3 class="nl-editor-header">${this.editor_name}</h3>`);
-        var destroy = $('<button class="nl-editor-destroy">X</button>');
-        destroy.click(function() { that._destroy(); });
-        header.append(destroy);
-        destroy.css('float: right;');
-        header.css('position: relative;');
+        this.element.data('nl-class', this.class);
+        this.header = $(`<h3 class="nl-editor-header">${this.editor_name}</h3>`);
+        if (this.options.destroyable) {
+            var destroy = $('<button class="nl-editor-destroy">X</button>');
+            destroy.click(function () {
+                that._destroy();
+            });
+            this.header.append(destroy);
+            destroy.css('float: right;');
+            this.header.css('position: relative;');
+        }
         this.contents = $('<div class="nl-editor-contents"></div>');
         $.each(this.editors, function(i, x) {
             add_editor(that, x);
         });
-        header.click(function() {
-            that.contents.toggleClass('hidden');
+        this.header.click(function() {
+            that.element.toggleClass('folded');
         });
         this.element.addClass('nl-editor');
-        this.element.append(header);
+        this.element.append(this.header);
         this.element.append(this.contents);
     },
 
@@ -96,10 +118,18 @@ $.widget('nle.base', {
 
     get_values: function() {
         var ret = {};
-        var el = this.element;
-        $.each(this.editors, function(i, e) {
-            ret[e.name] = el.find(`[name=${e.name}]`).val();
+        var el = this.contents;
+        /*
+        $.each(this.contents.children(), function(i, e) {
+            e = $(e);
+            ret[e.attr('name')] = e.val();
         });
+        /*/
+        $.each(this.editors, function(i, e) {
+            ret[e.name] = el.find(`> [name=${e.name}]`).val();
+        });
+        //*/
+        //console.log("get_values", this.class, ret);
         return ret;
     },
 
@@ -115,8 +145,9 @@ $.widget('nle.nlimage', $.nle.base, {
         {type: 'text', placeholder: 'Alternate text', name: 'alt'}
     ],
     editor_name: 'Image',
+    class: 'nlimage',
 
-    _create: function() { this._superApply(arguments); this.element.data('nl-class', 'nlimage'); },
+    _create: function() { this._superApply(arguments); },
     _refresh: function() { this._superApply(arguments); },
     _destroy: function() { this._superApply(arguments); },
     _setOptions: function() { this._superApply(arguments); this._refresh(); },
@@ -146,8 +177,9 @@ $.widget('nle.nltitle', $.nle.base, {
             placeholder: 'Title size'
         }],
     editor_name: 'Title',
+    class: 'nltitle',
 
-    _create: function() { this._superApply(arguments); this.element.data('nl-class', 'nltitle'); },
+    _create: function() { this._superApply(arguments); },
     _refresh: function() { this._superApply(arguments); },
     _destroy: function() { this._superApply(arguments); },
     _setOptions: function() { this._superApply(arguments); this._refresh(); },
@@ -163,8 +195,9 @@ $.widget('nle.nltext', $.nle.base, {
     options: {},
     editors: [{type: 'textarea', placeholder: 'Contents...', name: 'text'}],
     editor_name: 'Text',
+    class: 'nltext',
 
-    _create: function() { this._superApply(arguments); this.element.data('nl-class', 'nltext'); },
+    _create: function() { this._superApply(arguments); },
     _refresh: function() { this._superApply(arguments); },
     _destroy: function() { this._superApply(arguments); },
     _setOptions: function() { this._superApply(arguments); this._refresh(); },
@@ -182,8 +215,9 @@ $.widget('nle.nllink', $.nle.base, {
         {type: 'text', placeholder: 'Link text', name: 'text'}
     ],
     editor_name: 'Link',
+    class: 'nllink',
 
-    _create: function() { this._superApply(arguments); this.element.data('nl-class', 'nllink'); },
+    _create: function() { this._superApply(arguments); },
     _refresh: function() { this._superApply(arguments); },
     _destroy: function() { this._superApply(arguments); },
     _setOptions: function() { this._superApply(arguments); this._refresh(); },
@@ -204,10 +238,10 @@ $.widget('nle.nlbook', $.nle.base, {
         {name: 'seller_url', type: 'text', placeholder: 'Shop URL'}
     ],
     editor_name: 'Book promo',
+    class: 'nlbook',
 
     _create: function() {
         this._superApply(arguments);
-        this.element.data('nl-class', 'nlbook');
         this.adder = $('<button>Add a shop</button>');
         this.element.append(this.adder);
         var that = this;
@@ -218,9 +252,8 @@ $.widget('nle.nlbook', $.nle.base, {
             e = {name: 'seller_url', type: 'text', placeholder: 'Shop URL'};
             that.editors.push(e);
             add_editor(that, e);
-            that.append(that.adder);
+            //that.contents.append(that.adder);
         });
-
     },
     _refresh: function() { this._superApply(arguments); },
     _destroy: function() { this._superApply(arguments); },
@@ -230,11 +263,10 @@ $.widget('nle.nlbook', $.nle.base, {
     render: function() {
         var values = this.get_values();
         console.log(values);
-        return "todo";
         var cover = this.element.find('[name=cover]').val();
-        var descr = render_paragraphs(this.element.find('[name=descr]'));
-        var names = this.element.find('[name=seller_name]');
-        var urls = this.element.find('[name=seller_url]');
+        var descr = render_paragraphs(this.element.find('[name=descr]').val());
+        var names = this.element.find('[name=seller_name]').val();
+        var urls = this.element.find('[name=seller_url]').val();
         var links = '';
 
         for (var i = 0; i < 4; ++i) {
@@ -244,21 +276,21 @@ $.widget('nle.nlbook', $.nle.base, {
                 links += `<td>[${render_link(name, url)}]</td>`;
             }
         }
-        return `<table style="color: #ccc; width: 100%; font-family: helvetica; font-size: 14px; margin-bottom: 1em;" cellpadding="0" cellspacing="0">
-<tr>
-<td style="width: 200px; vertical-align: top;">
-<img alt="" src="${cover}"/>
-</td>
-<td style="padding: 0 .5em 0 .5em; vertical-align: top;">
-${descr}
-<hr size="1" style="color: #cbe8ff; width: 250px; margin: .5em auto .25em auto;"/>
-<table style="width: 100%; color: #ccc; text-align: center;">
-<tr>${links}
-</tr>
-</table>
-</td>
-</tr>
-</table>`;
+        return `<table style="color: #ccc; width: 100%; font-family: ${settings.font}; font-size: 14px; margin-bottom: 1em;" cellpadding="0" cellspacing="0">` +
+            '<tr>' +
+            '<td style="width: 200px; vertical-align: top;">' +
+            `<img alt="" src="${cover}"/>` +
+            '</td>' +
+            '<td style="padding: 0 .5em 0 .5em; vertical-align: top;">' +
+            `${descr}` +
+            '<hr size="1" style="color: #cbe8ff; width: 250px; margin: .5em auto .25em auto;"/>' +
+            '<table style="width: 100%; color: #ccc; text-align: center;">' +
+            `<tr>${links}` +
+            '</tr>' +
+            '</table>' +
+            '</td>' +
+            '</tr>' +
+            '</table>';
     }
 });
 
@@ -266,8 +298,9 @@ $.widget('nle.nlline', $.nle.base, {
     options: {},
     editors: [],
     editor_name: 'Horizontal separator',
+    class: 'nlline',
 
-    _create: function() { this._superApply(arguments); this.element.data('nl-class', 'nlline'); },
+    _create: function() { this._superApply(arguments); },
     _refresh: function() { this._superApply(arguments); },
     _destroy: function() { this._superApply(arguments); },
     _setOptions: function() { this._superApply(arguments); this._refresh(); },
@@ -278,49 +311,62 @@ $.widget('nle.nlline', $.nle.base, {
     }
 });
 
-$.widget('nle.genList', {
+$.widget('nle.genList', $.nle.base, {
     options: {},
+    prefix: '',
+    suffix: '',
+
+    editor_name: '[generic list]',
+
+    adders: [
+        {'name': 'Title', cls: 'nltitle'},
+        {'name': 'Text', cls: 'nltext'},
+        {'name': 'Link', cls: 'nllink'},
+        {'name': 'Image', cls: 'nlimage'},
+        {'name': 'Book', cls: 'nlbook'},
+        {'name': 'Line', cls: 'nlline'},
+        {'name': 'Table', cls: 'nltable'},
+        {'name': 'Section', cls: 'nldiv'},
+    ],
+
+    class: 'genList',
 
     _create: function() {
         this._superApply(arguments);
+        var wrapper = this.contents;
         this.contents = $('<div class="nl-editor-list-contents"></div>');
         this.adder_header = $('<h3 class="nl-editor-list-adder-header">Add...</h3>');
-        this.adder_contents = $(`<div class="nl-editor-list-adder-contents">
-            <button class="nl-editor-list-adder-link" id="add-title">Title</button>
-            <button class="nl-editor-list-adder-link" id="add-text">Text</button>
-            <button class="nl-editor-list-adder-link" id="add-link">Link</button>
-            <button class="nl-editor-list-adder-link" id="add-image">Image</button>
-            <button class="nl-editor-list-adder-link" id="add-book">Book</button>
-            <button class="nl-editor-list-adder-link" id="add-separator">Separator</button>
-        </div>`);
-        this.element.append(this.contents);
-        this.element.append(this.adder_header);
-        this.element.append(this.adder_contents);
+        this.adder_contents = $('<div class="nl-editor-list-adder-contents"></div>');
+        var that = this;
+        $.each(this.adders, function(i, a) {
+            (function (name, cls) {
+                var el = $(`<button class="nl-editor-list-adder-link" name="add-${name}">${name}</button>`);
+                that.adder_contents.append(el);
+                el.click(function() {
+                    var e = that.add_el(); e[cls]();
+                    e[cls]('option', 'change', that.changed);
+                    that._trigger('change');
+                    console.log('new editor', e[cls]('option', 'change'));
+                });
+            })(a.name, a.cls);
+        });
+        wrapper.append(this.contents);
+        wrapper.append(this.adder_header);
+        wrapper.append(this.adder_contents);
         this.contents.sortable({
             handle: '.nl-editor-header',
             items: '> div',
             containment: 'parent',
-            axis: 'y'
+            axis: 'y',
+            change: function() { console.log('changed order!'); that._trigger('change'); }
         });
-        var that = this;
-        this.adder_contents.find('#add-title').click(function() {
-            that.add_el().nltitle({change: this.changed});
-        });
-        this.adder_contents.find('#add-text').click(function() {
-            that.add_el().nltext({change: this.changed});
-        });
-        this.adder_contents.find('#add-link').click(function() {
-            that.add_el().nllink({change: this.changed});
-        });
-        this.adder_contents.find('#add-image').click(function() {
-            that.add_el().nlimage({change: this.changed});
-        });
-        this.adder_contents.find('#add-book').click(function() {
-            that.add_el().nlbook({change: this.changed});
-        });
-        this.adder_contents.find('#add-separator').click(function() {
-            that.add_el().nlline({change: this.changed});
-        });
+        this.element.addClass('nl-editor-list');
+        wrapper.addClass('nl-editor-contents');
+    },
+
+    changed: function() {
+        this._refresh();
+        this._trigger('change');
     },
 
     add_el: function() {
@@ -330,45 +376,99 @@ $.widget('nle.genList', {
         return el;
     },
 
-    _refresh: function() {
-        this._superApply(arguments);
-    },
-
-    _destroy: function() {
-        this._superApply(arguments);
-    },
-
-    _setOptions: function() {
-        this._superApply(arguments);
-        this._refresh();
-    },
-
-    _setOption: function() {
-        this._superApply(arguments);
-        this._refresh();
-    },
+    _trigger: function() { this._superApply(arguments); },
+    _refresh: function() { this._superApply(arguments); },
+    _destroy: function() { this._superApply(arguments); },
+    _setOptions: function() { this._superApply(arguments); this._refresh(); },
+    _setOption: function() { this._superApply(arguments); this._refresh(); },
 
     changed: function() {
         this._trigger('change');
     },
 
     render: function() {
-        var ret = '';
-        var editors = this.contents.find('.nl-editor');
+        var ret = [];
+        var editors = this.contents.find('> .nl-editor');
         console.log(editors);
+        var pfx = this.prefix;
+        var sfx = this.suffix;
+        console.log("rendering list");
         $.each(editors, function(i, ed) {
             var cls = $(ed).data('nl-class');
             var ren = $(ed)[cls]('render');
-            console.log(cls, $(ed)[cls]('get_values'), ren);
-            ret += ren;
+            console.log(pfx, ren, sfx);
+            //console.log(cls, $(ed)[cls]('get_values'), ren);
+            ret.push(ren);
         });
-        return ret;
+        console.log(ret);
+        return pfx + ret.join(sfx + pfx) + sfx;
     }
+});
+
+$.widget('nle.nltd', $.nle.genList, {
+    editor_name: 'Cell',
+    class: 'nltd',
+    _create: function() { this._superApply(arguments); },
+    _refresh: function() { this._superApply(arguments); },
+    _destroy: function() { this._superApply(arguments); },
+    _setOptions: function() { this._superApply(arguments); this._refresh(); },
+    _setOption: function() { this._superApply(arguments); this._refresh(); },
+    render: function() { return this._superApply(arguments); }
+});
+
+$.widget('nle.nltr', $.nle.genList, {
+    editor_name: 'Row',
+    prefix: '<td>',
+    suffix: '</td>',
+    adders: [
+        {'name': 'Cell', cls: 'nltd'},
+    ],
+    class: 'nltr',
+    _create: function() { this._superApply(arguments); },
+    _refresh: function() { this._superApply(arguments); },
+    _destroy: function() { this._superApply(arguments); },
+    _setOptions: function() { this._superApply(arguments); this._refresh(); },
+    _setOption: function() { this._superApply(arguments); this._refresh(); },
+    render: function() { return this._superApply(arguments); }
+});
+
+$.widget('nle.nltable', $.nle.genList, {
+    editor_name: 'Table',
+    prefix: '<tr>',
+    suffix: '</tr>',
+    adders: [
+        {'name': 'Row', cls: 'nltr'},
+    ],
+    class: 'nltable',
+    render: function() {
+        return '<table><tbody>' + this._superApply(arguments) + '</tbody></table>';
+    },
+    _create: function() { this._superApply(arguments); },
+    _refresh: function() { this._superApply(arguments); },
+    _destroy: function() { this._superApply(arguments); },
+    _setOptions: function() { this._superApply(arguments); this._refresh(); },
+    _setOption: function() { this._superApply(arguments); this._refresh(); },
+    render: function() { return '<table><tbody>' + this._superApply(arguments) + '</tbody></table>'; }
+});
+
+$.widget('nle.nldiv', $.nle.genList, {
+    editor_name: 'Section',
+    class: 'nldiv',
+    render: function() {
+        return '<div>' + this._superApply(arguments) + '</div>';
+    },
+    _create: function() { this._superApply(arguments); },
+    _refresh: function() { this._superApply(arguments); },
+    _destroy: function() { this._superApply(arguments); },
+    _setOptions: function() { this._superApply(arguments); this._refresh(); },
+    _setOption: function() { this._superApply(arguments); this._refresh(); },
+    render: function() { return this._superApply(arguments); }
 });
 
 $.widget('nle.settings', $.nle.base, {
     options: {
-        'change': null
+        change: null,
+        destroyable: false,
     },
 
     editors: [
@@ -377,10 +477,13 @@ $.widget('nle.settings', $.nle.base, {
         {name: 'text', type: 'color', placeholder: 'Text color'},
         {name: 'link', type: 'color', placeholder: 'Link color'},
         {name: 'textfont', type: 'text', placeholder: 'Text font'},
-        {name: 'titlefont', type: 'text', placeholder: 'Title font'}
+        {name: 'titlefont', type: 'text', placeholder: 'Title font'},
+        {name: 'firstparstyle', type: 'text', placeholder: 'Style for first paragraph'}
     ],
 
     editor_name: 'Settings',
+
+    class: 'settings',
 
     _create: function() {
         this._superApply(arguments);
@@ -390,6 +493,8 @@ $.widget('nle.settings', $.nle.base, {
         this.element.find('[name=link]').val(settings.link);
         this.element.find('[name=textfont]').val(settings.textfont);
         this.element.find('[name=titlefont]').val(settings.titlefont);
+        this.element.find('[name=firstparstyle]').val(settings.firstparstyle);
+        this.element.addClass('nl-editor-list');
     },
 
     _refresh: function() {
@@ -401,6 +506,7 @@ $.widget('nle.settings', $.nle.base, {
         settings.width = values.width;
         settings.textfont = values.textfont;
         settings.titlefont = values.titlefont;
+        settings.firstparstyle = values.firstparstyle;
         this._trigger('change');
     }
 });
