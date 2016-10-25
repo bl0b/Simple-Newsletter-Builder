@@ -454,9 +454,6 @@ $.widget('nle.nltable', $.nle.genList, {
 $.widget('nle.nldiv', $.nle.genList, {
     editor_name: 'Section',
     class: 'nldiv',
-    render: function() {
-        return '<div>' + this._superApply(arguments) + '</div>';
-    },
     _create: function() { this._superApply(arguments); },
     _refresh: function() { this._superApply(arguments); },
     _destroy: function() { this._superApply(arguments); },
