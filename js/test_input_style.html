@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Simple newsletter builder - by bl0b</title>
+    <script src="jquery.js"></script>
+    <script src="jquery-ui.min.js"></script>
+    <script src="moment.min.js"></script>
+    <script src="Blob.js"></script>
+    <script src="FileSaver.min.js"></script>
+    <script src="clipboard.min.js"></script>
+    <script src="functions.js"></script>
+    <script src="widgets.js"></script>
+    <script src="newsletter-generator.js"></script>
+    <link rel="stylesheet" href="../css/widgets.css"/>
+    <link rel="stylesheet" href="../css/jquery-ui.min.css"/>
+</head>
+<body>
+<div style="width: 400px;">
+    <label for="text">Text</label><input type="text" name="text"/>
+    <label for="color">Color</label><input type="color" name="color"/>
+    <label class="textarea" for="textarea">Textarea</label><textarea name="textarea"></textarea>
+    <label for="checkbox">Checkbox</label><div class="nl-editor-checkbox"><input type="checkbox" name="checkbox"/></div>
+    <label for="file">File</label><input type="file" name="file"/>
+</div>
+</body>
+</html>

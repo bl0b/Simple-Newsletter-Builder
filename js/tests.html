@@ -2,42 +2,50 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title></title>
-    <style>
-    </style>
+    <title>Simple newsletter builder - by bl0b</title>
     <script src="jquery.js"></script>
     <script src="jquery-ui.min.js"></script>
+    <script src="moment.min.js"></script>
+    <script src="Blob.js"></script>
+    <script src="FileSaver.min.js"></script>
+    <script src="clipboard.min.js"></script>
+    <script src="functions.js"></script>
     <script src="widgets.js"></script>
-    <link rel="stylesheet" href="../css/jquery-ui.min.css"/>
+    <script src="newsletter-generator.js"></script>
     <link rel="stylesheet" href="../css/widgets.css"/>
+    <link rel="stylesheet" href="../css/jquery-ui.min.css"/>
     <script>
+        console.clear();
         $(document).ready(function () {
-            $('#sort').genList({
-                change: function() {
-                    console.log('CHANGE!\n', $('#sort').genList('render'));
-                },
-                destroyable: false
-            });
-            $('#settings').settings();
-            $('body > button').click(function() {
-                console.log($('#sort').genList('render'));
-            });
-            global_render = function() {
-                console.log(settings);
-                $('#output').html('<html><body>' + $('#sort').genList('render') + '</body></html>');
-                $('#output').css({width: settings.width, 'font-family': settings.font, background: settings.background, color: settings.text});
-            }
+            init_newsletter_generator({
+                settings: '#settings',
+                editor: '#editor',
+                output: '#output',
+                load_button: '#load',
+                save_button: '#save',
+                copy_button: '#copy'});
+            $('#copy').button();
+            new Clipboard('#copy');
         });
     </script>
 </head>
-<body style="position: relative;">
+<body>
     <div id="edit" style="display: inline-block; width: 600px;">
+        <div class="buttons">
+            <button id="load">Load</button>
+            <button id="save">Save</button>
+            <button id="copy" data-clipboard-action="copy" data-clipboard-target="#debug">
+                Copy to clipboard
+            </button>
+        </div>
         <div id="settings"></div>
-        <div id="sort"></div>
+        <div id="editor"></div>
     </div>
-    <div style="display: inline-block; border: 3px solid gray; float: right; height: 90vh; overflow-y: scroll;">
-        <div id="output"></div>
+    <div class="output-wrapper ui-widget">
+        <h3 class="ui-widget-header">Live Result</h3>
+        <div id="output" class="output-container ui-widget-content"></div>
     </div>
-    <button>Generate</button>
+    <!--<button>Generate</button>-->
+    <code id="debug"></code>
 </body>
 </html>
