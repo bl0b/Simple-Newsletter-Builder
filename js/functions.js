@@ -32,18 +32,22 @@ function render_image(alt, url) {
 }
 
 function render_link(text, url, img='', img_pos='') {
+    console.log("DEBUG SETTINGS RENDER_LINK");
+    for (var i = 0; i < settings_stack.length; ++i) {
+        console.log(settings_stack[i]);
+    }
     if (img != '') {
         if (img_pos == 'top') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font: ${cfg('textfont')}" href="${url}">${render_image(text, img)}<br/>${text}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${render_image(text, img)}<br/>${text}</a>`;
         } else if (img_pos == 'left') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font: ${cfg('textfont')}" href="${url}">${render_image(text, img)}${text}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${render_image(text, img)}${text}</a>`;
         } else if (img_pos == 'right') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font: ${cfg('textfont')}" href="${url}">${text}${render_image(text, img)}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${text}${render_image(text, img)}</a>`;
         } else if (img_pos == 'bottom') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font: ${cfg('textfont')}" href="${url}">${text}<br/>${render_image(text, img)}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${text}<br/>${render_image(text, img)}</a>`;
         }
     } else {
-        return `<a target="_blank" style="color: ${cfg('linkcolor')}; font: ${cfg('textfont')}" href="${url}">${text}</a>`;
+        return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${text}</a>`;
     }
 }
 
@@ -89,19 +93,30 @@ function add_input(that, ui, x, checkbox) {
                 el.append($(`<option value="${o.value}">${o.name}</option>`));
             }
         });
+    } else if (x.type == 'color') {
+        /* for use with iris */
+    //    el = $(`<div class="nl-editor-checkbox"><input type="text" name="${x.name}" placeholder="${x.placeholder}" /></div>`);
+        el = $(`<input type="text" name="${x.name}" placeholder="${x.placeholder}" />`);
     } else {
         el = $(`<input type="${x.type}" name="${x.name}" placeholder="${x.placeholder}" />`);
     }
     if (x.prefill) {
+        var prefill;
         if (typeof x.prefill == "string") {
-            el.val(x.prefill);
+            prefill = x.prefill;
         } else {
-            el.val(x.prefill());
+            prefill = x.prefill();
+        }
+        console.log("prefill", x.name, prefill);
+        if (x.type == 'checkbox') {
+            el.find('> input').val(prefill);
+        } else {
+            el.val(prefill);
         }
     } else {
         el.val(cfg(x.name));
     }
-    var l = $(`<label for="${x.name}">${x.placeholder}</label>`);
+    var l = $(`<label data-for="${x.name}">${x.placeholder}</label>`);
     if (checkbox && cfg(x.name) !== undefined) {
         var chk = $('<input type="checkbox"/>');
         l.prepend(chk);
@@ -122,6 +137,26 @@ function add_input(that, ui, x, checkbox) {
         l.addClass('textarea');
     }
     that.append(el);
+    if (x.type == 'color') {
+/*
+    // for use with iris
+        var input = el.find('input');
+        input.iris({
+            color: true,
+            hide: true,
+            border: true,
+            target: el,
+            change: (e, ui) => input.css({background: ui.color.toString()})
+        });
+        el.hover(() => input.iris('show'), () => input.iris('hide'));
+*/
+        el.colorpicker({
+            defaultPalette: 'web',
+            history: false,
+            showOn: 'focus',
+            color: el.val()
+        });
+    }
     el.change(function() { ui._refresh(); });
     el.keyup(function() { ui._refresh(); });
     el.mouseup(function() { ui._refresh(); });
@@ -147,12 +182,31 @@ function rgb2hex(rgb) {
     return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
 }
 
+function input_is_enabled(el, e) {
+    var ret = el.find(`label[data-for=${e.name}] > input[type=checkbox]`).prop('checked');
+    //if (e.type == 'checkbox') {
+    //    ret = !el.find(`> div > [name=${e.name}]`).prop('disabled');
+    //} else if (e.type == 'color') {
+    //    ret = !el.find(`> div > [name=${e.name}]`).prop('disabled');
+    //} else {
+    //    ret = !el.find(`> [name=${e.name}]`).prop('disabled');
+    //}
+    console.log("input_is_enabled", el, e, ret);
+    return ret;
+}
+
 function get_input_value(el, e) {
     //console.log('get_input_value', el, e);
     if (e.type == 'checkbox') {
         return el.find(`> div > [name=${e.name}]:enabled`).prop('checked');
     } else if (e.type == 'color') {
-        return rgb2hex(el.find(`> [name=${e.name}]:enabled`).val());
+    //    return rgb2hex(el.find(`> [name=${e.name}]:enabled`).val());
+        var x = el.find(`> div > [name=${e.name}]:enabled`);
+        if (x.length == 1) {
+            return x.colorpicker('val');
+        } else {
+            return undefined;
+        }
     } else {
         return el.find(`> [name=${e.name}]:enabled`).val();
     }
@@ -160,7 +214,7 @@ function get_input_value(el, e) {
 
 function set_input_value(el, e, v) {
     //console.log('set_input_value', el, e, v);
-    var chk = el.find(`label[for=${e.name}] > input[type=checkbox]`);
+    var chk = el.find(`label[data-for=${e.name}] > input[type=checkbox]`);
     if (v === undefined && chk.length == 1) {
         chk.prop('checked', false);
         if (e.type == 'checkbox') {
@@ -172,7 +226,8 @@ function set_input_value(el, e, v) {
         if (e.type == 'checkbox') {
             el.find(`> div > [name=${e.name}]`).prop('checked', v);
         } else if (e.type == 'color') {
-            el.find(`> [name=${e.name}]`).val(rgb2hex(v));
+        //    el.find(`> [name=${e.name}]`).val(rgb2hex(v));
+            el.find(`> div > [name=${e.name}]`).colorpicker('val', v);
         } else {
             el.find(`> [name=${e.name}]`).val(v);
         }

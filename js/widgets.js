@@ -127,7 +127,9 @@ $.widget('nle.base', {
         var ret = {};
         var el = this.contents_settings;
         $.each(this.settings, function(i, e) {
-            ret[e.name] = get_input_value(el, e);
+            if (input_is_enabled(el, e.name)) {
+                ret[e.name] = get_input_value(el, e);
+            }
         });
         return ret;
     },
@@ -328,11 +330,11 @@ $.widget('nle.nlbook', $.nle.base, {
                 {name: 'Center', value: 'center'},
                 {name: 'Right', value: 'right'}
             ],
-            name: 'blurb_align', prefill: () => cfg('textalign')},
-        {type: 'text', placeholder: 'Blurb size', name: 'blurbfontsize', prefill: () => cfg('fontsize')},
-        {type: 'text', placeholder: 'Blurb color', name: 'blurbfontcolor'},
-        {type: 'text', placeholder: 'Link size', name: 'linkfontsize'},
-        {type: 'text', placeholder: 'Link color', name: 'linkcolor'}
+            name: 'blurbalign', prefill: () => cfg('textalign')},
+        {type: 'text', placeholder: 'Blurb size', name: 'bookblurbsize', prefill: () => cfg('fontsize')},
+        {type: 'color', placeholder: 'Blurb color', name: 'bookblurbcolor'},
+        {type: 'text', placeholder: 'Link size', name: 'booklinksize'},
+        {type: 'color', placeholder: 'Link color', name: 'booklinkcolor'}
     ],
     editor_name: 'Book promo',
     class: 'nlbook',
@@ -360,10 +362,10 @@ $.widget('nle.nlbook', $.nle.base, {
         });
         this.remover.click(function() {
             that.contents.find('input[name="seller_url"]:last-child').remove();
-            that.contents.find('label[for="seller_url"]:last-child').remove();
+            that.contents.find('label[data-for="seller_url"]:last-child').remove();
             that.editors.pop();
             that.contents.find('input[name="seller_name"]:last-child').remove();
-            that.contents.find('label[for="seller_name"]:last-child').remove();
+            that.contents.find('label[data-for="seller_name"]:last-child').remove();
             that.editors.pop();
             that._refresh();
             //that.contents.append(that.adder);
@@ -393,15 +395,15 @@ $.widget('nle.nlbook', $.nle.base, {
         }
         links = links.join('');
         //console.log("book links", names, urls, links);
-        return `<table style="color: ${cfg('blurbfontcolor')}; width: 100%; font-family: ${cfg('font')}; font-size: ${cfg('blurbfontsize')}; margin-bottom: 1em;" cellpadding="0" cellspacing="0">` +
+        return `<table style="color: ${cfg('bookblurbcolor')}; width: 100%; font-family: ${cfg('textfont')}; font-size: ${cfg('bookblurbsize')}; margin-bottom: 1em;" cellpadding="0" cellspacing="0">` +
             '<tr>' +
             '<td style="width: 200px; vertical-align: top;">' +
             `<img alt="" src="${cover}"/>` +
             '</td>' +
-            `<td style="padding: 0 .5em 0 .5em; vertical-align: top; text-align: ${cfg('blurb_align')};">` +
+            `<td style="padding: 0 .5em 0 .5em; vertical-align: top; text-align: ${cfg('blurbalign')};">` +
             `${descr}` +
             '<hr size="1" style="color: #cbe8ff; width: 250px; margin: .5em auto .25em auto;"/>' +
-            `<table style="width: 100%; font-size: ${cfg('linkfontsize')}; color: ${cfg('linkfontcolor')}; text-align: center;">` +
+            `<table style="width: 100%; font-size: ${cfg('booklinksize')}; font-family: ${cfg('textfont')}; color: ${cfg('booklinkcolor')}; text-align: center;">` +
             `<tr>${links}` +
             '</tr>' +
             '</table>' +
@@ -412,8 +414,10 @@ $.widget('nle.nlbook', $.nle.base, {
 
     get_structure: function() {
         var values = this.get_values();
-        values.seller_name = this.contents.find('input[name=seller_name]').map((i, e) => $(e).val()).toArray();
-        values.seller_url = this.contents.find('input[name=seller_url]').map((i, e) => $(e).val()).toArray();
+        values.seller_name = [];
+        values.seller_url = [];
+        this.contents.find('input[name=seller_name]').each((i, e) => values.seller_name.push($(e).val()));
+        this.contents.find('input[name=seller_url]').each((i, e) => values.seller_url.push($(e).val()));
         return {class: this.class, settings: this.get_settings(), values: values};
     },
 
@@ -795,18 +799,18 @@ $.widget('nle.settings', $.nle.base, {
                 {name: 'Center', value: 'center'},
                 {name: 'Right', value: 'right'}
             ],
-            name: 'blurb_align', prefill: () => cfg('textalign')},
-        {type: 'text', placeholder: '[Book] Blurb size', name: 'blurbfontsize', prefill: '12px'},
-        {type: 'color', placeholder: '[Book] Blurb color', name: 'blurbfontcolor', prefill: '#000000'},
-        {type: 'text', placeholder: '[Book] Link size', name: 'linkfontsize', prefill: '12px'},
-        {type: 'color', placeholder: '[Book] Link color', name: 'linkcolor', prefill: '#0000ff'},
+            name: 'blurbalign', prefill: 'left'},
+        {type: 'text', placeholder: '[Book] Blurb size', name: 'bookblurbsize', prefill: '12px'},
+        {type: 'color', placeholder: '[Book] Blurb color', name: 'bookblurbcolor', prefill: '#000000'},
+        {type: 'text', placeholder: '[Book] Link size', name: 'booklinksize', prefill: '12px'},
+        {type: 'color', placeholder: '[Book] Link color', name: 'booklinkcolor', prefill: '#0000ff'},
         {name: 'divborder', type: 'text', placeholder: 'Section border', prefill: '0'},
         {name: 'cellborder', type: 'text', placeholder: 'Cell border', prefill: '0'},
         {name: 'tableborder', type: 'text', placeholder: 'Table border', prefill: '0'},
-        {name: 'cellpadding', type: 'number', placeholder: 'Cell padding', prefill: 0},
-        {name: 'cellspacing', type: 'number', placeholder: 'Cell spacing', prefill: 0},
+        {name: 'cellpadding', type: 'number', placeholder: 'Cell padding', prefill: '0'},
+        {name: 'cellspacing', type: 'number', placeholder: 'Cell spacing', prefill: '0'},
         /* HR */
-        {name: 'hr_style', type: 'text', placeholder: 'Style'}
+        {name: 'hr_style', type: 'text', placeholder: 'Horizontal line style'}
     ],
 
     editor_name: 'Global settings',
@@ -814,7 +818,8 @@ $.widget('nle.settings', $.nle.base, {
     class: 'settings',
 
     update_settings_stack: function() {
-        settings_stack[0] = this.get_values(); console.log("new settings (refresh)", settings_stack[0]);
+        settings_stack[0] = this.get_values();
+        console.log("new settings (refresh)", settings_stack[0]);
     },
     _create: function() { this._superApply(arguments); this.update_settings_stack(); },
     _trigger: function(e) { this._superApply(arguments); },
