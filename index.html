@@ -3,23 +3,23 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Simple newsletter builder - by bl0b</title>
-    <script src="jquery.js"></script>
-    <script src="jquery-ui.min.js"></script>
-    <script src="evol-colorpicker.min.js"></script>
-    <script src="moment.min.js"></script>
-    <script src="Blob.js"></script>
-    <script src="FileSaver.min.js"></script>
-    <script src="clipboard.min.js"></script>
-    <script src="functions.js"></script>
-    <script src="widgets.js"></script>
-    <script src="newsletter-generator.js"></script>
-    <link rel="stylesheet" href="../css/jquery-ui.min.css"/>
-    <link rel="stylesheet" href="../css/evol-colorpicker.min.css"/>
-    <link rel="stylesheet" href="../css/widgets.css"/>
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/evol-colorpicker.min.js"></script>
+    <script src="js/moment.min.js"></script>
+    <script src="js/Blob.js"></script>
+    <script src="js/FileSaver.min.js"></script>
+    <script src="js/clipboard.min.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/widgets.js"></script>
+    <script src="js/newsletter-builder.js"></script>
+    <link rel="stylesheet" href="css/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="css/evol-colorpicker.min.css"/>
+    <link rel="stylesheet" href="css/widgets.css"/>
     <script>
         console.clear();
         $(document).ready(function () {
-            init_newsletter_generator({
+            init_newsletter_builder({
                 settings: '#settings',
                 editor: '#editor',
                 output: '#output',
@@ -48,6 +48,6 @@
         <div id="output" class="output-container ui-widget-content"></div>
     </div>
     <!--<button>Generate</button>-->
-    <code id="debug"></code>
+    <div class="hidden"><code id="debug"></code></div>
 </body>
 </html>

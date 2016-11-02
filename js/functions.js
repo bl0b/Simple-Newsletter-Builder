@@ -32,19 +32,19 @@ function render_image(alt, url) {
 }
 
 function render_link(text, url, img='', img_pos='') {
-    console.log("DEBUG SETTINGS RENDER_LINK");
-    for (var i = 0; i < settings_stack.length; ++i) {
-        console.log(settings_stack[i]);
-    }
+    //console.log("DEBUG SETTINGS RENDER_LINK");
+    //for (var i = 0; i < settings_stack.length; ++i) {
+    //    console.log(settings_stack[i]);
+    //}
     if (img != '') {
         if (img_pos == 'top') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${render_image(text, img)}<br/>${text}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')};" href="${url}">${render_image(text, img)}<br/>${text}</a>`;
         } else if (img_pos == 'left') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${render_image(text, img)}${text}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')};" href="${url}">${render_image(text, img)}${text}</a>`;
         } else if (img_pos == 'right') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${text}${render_image(text, img)}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')};" href="${url}">${text}${render_image(text, img)}</a>`;
         } else if (img_pos == 'bottom') {
-            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${text}<br/>${render_image(text, img)}</a>`;
+            return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')};" href="${url}">${text}<br/>${render_image(text, img)}</a>`;
         }
     } else {
         return `<a target="_blank" style="color: ${cfg('linkcolor')}; font-family: ${cfg('textfont')}" href="${url}">${text}</a>`;
@@ -107,7 +107,7 @@ function add_input(that, ui, x, checkbox) {
         } else {
             prefill = x.prefill();
         }
-        console.log("prefill", x.name, prefill);
+        //console.log("prefill", x.name, prefill);
         if (x.type == 'checkbox') {
             el.find('> input').val(prefill);
         } else {

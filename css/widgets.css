@@ -192,6 +192,26 @@ input, textarea, select, div.nl-editor-checkbox {
     vertical-align: baseline;
 }
 
+label.color + div > input {
+    width: 80%;
+}
+
+input.colorPicker {
+    width: 50% !important;
+}
+
+div.evo-colorind {
+    display: inline-block;
+    width: 40%;
+    height: 2em;
+}
+
+/*label.color + div {*/
+.evo-cp-wrap {
+    display: inline-block;
+    width: 45% !important;
+}
+
 .nl-editor-contents > button {
     margin: .25em 3em .25em 3em;
 }
@@ -243,7 +263,7 @@ label.textarea {
     display: inline-block;
     position: fixed;
     top: 16px;
-    left: 620px;
+    left: 820px;
     height: auto;
     overflow-y: hidden;
 }
@@ -263,11 +283,6 @@ label.textarea {
     border-top-left-radius: 1em;
     border-top-right-radius: 1em;
     text-align: center;
-}
-
-#debug {
-    border: 3px solid aquamarine;
-    background: aqua;
 }
 
 /*.buttons {
@@ -336,3 +351,22 @@ label > input[type=checkbox] {
     0% { border: 4px solid rgba(0, 0, 0, .5); }
     100% { border: 4px solid rgba(255, 255, 255, .5); }
 }
+
+
+#debug {
+    /*border: 3px solid aquamarine;*/
+    /*background: aqua;*/
+    color: transparent;
+    background: transparent;
+}
+
+div.hidden {
+    /*display: none;*/
+    /*visibility: hidden;*/
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    color: transparent;
+    background: transparent;
+}
+

@@ -14,7 +14,7 @@ function global_render(settings, editor, output, copy) {
 }
 
 
-function init_newsletter_generator(options) {
+function init_newsletter_builder(options) {
     var editor = $(options.editor).first();
     var output = $(options.output).first();
     var copy = $(options.copy_button).first();

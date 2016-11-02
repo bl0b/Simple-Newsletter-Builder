@@ -126,11 +126,13 @@ $.widget('nle.base', {
     get_settings: function() {
         var ret = {};
         var el = this.contents_settings;
+        //console.log(this.class, "get_settings");
         $.each(this.settings, function(i, e) {
-            if (input_is_enabled(el, e.name)) {
+            //if (input_is_enabled(el, e.name)) {
                 ret[e.name] = get_input_value(el, e);
-            }
+            //}
         });
+        //console.log(ret);
         return ret;
     },
 
@@ -232,7 +234,7 @@ $.widget('nle.nltitle', $.nle.base, {
 
     render_impl: function() {
         var values = this.get_values();
-        return `<${values.size}>${render_text(values.text)}</${values.size}>`;
+        return `<${values.size} style="font-family: ${cfg('titlefont')};">${render_text(values.text)}</${values.size}>`;
     }
 });
 
@@ -317,13 +319,14 @@ $.widget('nle.nlbook', $.nle.base, {
     options: {},
     editors: [
         {name: 'cover', type: 'text', placeholder: 'Book cover URL'},
-        {name: 'descr', type: 'textarea', placeholder: 'Blurb'},
-        {name: 'add_shop', type: 'button', placeholder: 'Add a shop'},
-        {name: 'remove_shop', type: 'button', placeholder: 'Remove a shop'},
-        {name: 'seller_name', type: 'text', placeholder: 'Shop'},
-        {name: 'seller_url', type: 'text', placeholder: 'Shop URL'}
+        {name: 'descr', type: 'textarea', placeholder: 'Blurb'}
     ],
     settings: [
+        {type: 'select', placeholder: 'Template', options: [
+            {name: 'Cover on top', value: 'top'},
+            {name: 'Cover on left', value: 'left'},
+            {name: 'Cover on right', value: 'right'}
+        ], name: 'template', prefill: 'left'},
         {type: 'select', placeholder: 'Blurb align',
             options: [
                 {name: 'Left', value: 'left'},
@@ -331,6 +334,7 @@ $.widget('nle.nlbook', $.nle.base, {
                 {name: 'Right', value: 'right'}
             ],
             name: 'blurbalign', prefill: () => cfg('textalign')},
+        {type: 'text', placeholder: 'Cover width', name: 'bookcoverwidth', prefill: '200px'},
         {type: 'text', placeholder: 'Blurb size', name: 'bookblurbsize', prefill: () => cfg('fontsize')},
         {type: 'color', placeholder: 'Blurb color', name: 'bookblurbcolor'},
         {type: 'text', placeholder: 'Link size', name: 'booklinksize'},
@@ -340,35 +344,34 @@ $.widget('nle.nlbook', $.nle.base, {
     class: 'nlbook',
 
     add_shop: function(name, url) {
-        var e = {name: 'seller_name', type: 'text', placeholder: 'Shop', prefill: name};
-        this.editors.push(e);
+        var e = {name: 'retailer_name', type: 'text', placeholder: 'Shop', prefill: name};
         add_editor(this.contents, this, e);
-        e = {name: 'seller_url', type: 'text', placeholder: 'Shop URL', prefill: url};
-        this.editors.push(e);
+        e = {name: 'retailer_url', type: 'text', placeholder: 'Shop URL', prefill: url};
         add_editor(this.contents, this, e);
+    },
+
+    remove_shop: function() {
+        this.contents.find('input[name="retailer_url"]:last-child').remove();
+        this.contents.find('label[data-for="retailer_url"]:last-child').remove();
+        this.contents.find('input[name="retailer_name"]:last-child').remove();
+        this.contents.find('label[data-for="retailer_name"]:last-child').remove();
     },
 
     _create: function() {
         this._superApply(arguments);
-        //this.adder = $('<button>Add a shop</button>');
-        //this.element.append(this.adder);
+        add_editor(this.contents, this, {name: 'add_shop', type: 'button', placeholder: 'Add a shop'});
+        add_editor(this.contents, this, {name: 'remove_shop', type: 'button', placeholder: 'Remove a shop'});
+        this.add_shop('', '');
         this.adder = this.contents.find('button[name=add_shop]');
         this.remover = this.contents.find('button[name=remove_shop]');
         var that = this;
         this.adder.click(function() {
             that.add_shop(undefined, undefined);
             that._refresh();
-            //that.contents.append(that.adder);
         });
         this.remover.click(function() {
-            that.contents.find('input[name="seller_url"]:last-child').remove();
-            that.contents.find('label[data-for="seller_url"]:last-child').remove();
-            that.editors.pop();
-            that.contents.find('input[name="seller_name"]:last-child').remove();
-            that.contents.find('label[data-for="seller_name"]:last-child').remove();
-            that.editors.pop();
+            that.remove_shop();
             that._refresh();
-            //that.contents.append(that.adder);
         });
     },
     _refresh: function() { this._superApply(arguments); },
@@ -379,13 +382,22 @@ $.widget('nle.nlbook', $.nle.base, {
 
     render: function() { return this._superApply(arguments); },
 
+    get_values: function() {
+        return {
+            cover: this.element.find('[name=cover]').val(),
+            descr: this.element.find('[name=descr]').val(),
+            retailer_name: $.makeArray(this.element.find('[name=retailer_name]').map((i, e) => $(e).val())),
+            retailer_url: $.makeArray(this.element.find('[name=retailer_url]').map((i, e) => $(e).val()))
+        };
+    },
+
     render_impl: function() {
         //var values = this.get_values();
         //console.log(values);
         var cover = this.element.find('[name=cover]').val();
         var descr = render_paragraphs(this.element.find('[name=descr]').val(), true, cfg('firstparstyle'), cfg('parstyle'));
-        var names = this.element.find('[name=seller_name]').map((i, e) => $(e).val());
-        var urls = this.element.find('[name=seller_url]').map((i, e) => $(e).val());
+        var names = this.element.find('[name=retailer_name]').map((i, e) => $(e).val());
+        var urls = this.element.find('[name=retailer_url]').map((i, e) => $(e).val());
         var links = [];
 
         for (var i = 0; i < names.length; ++i) {
@@ -395,30 +407,21 @@ $.widget('nle.nlbook', $.nle.base, {
         }
         links = links.join('');
         //console.log("book links", names, urls, links);
-        return `<table style="color: ${cfg('bookblurbcolor')}; width: 100%; font-family: ${cfg('textfont')}; font-size: ${cfg('bookblurbsize')}; margin-bottom: 1em;" cellpadding="0" cellspacing="0">` +
-            '<tr>' +
-            '<td style="width: 200px; vertical-align: top;">' +
-            `<img alt="" src="${cover}"/>` +
-            '</td>' +
-            `<td style="padding: 0 .5em 0 .5em; vertical-align: top; text-align: ${cfg('blurbalign')};">` +
-            `${descr}` +
-            '<hr size="1" style="color: #cbe8ff; width: 250px; margin: .5em auto .25em auto;"/>' +
-            `<table style="width: 100%; font-size: ${cfg('booklinksize')}; font-family: ${cfg('textfont')}; color: ${cfg('booklinkcolor')}; text-align: center;">` +
-            `<tr>${links}` +
-            '</tr>' +
-            '</table>' +
-            '</td>' +
-            '</tr>' +
-            '</table>';
-    },
-
-    get_structure: function() {
-        var values = this.get_values();
-        values.seller_name = [];
-        values.seller_url = [];
-        this.contents.find('input[name=seller_name]').each((i, e) => values.seller_name.push($(e).val()));
-        this.contents.find('input[name=seller_url]').each((i, e) => values.seller_url.push($(e).val()));
-        return {class: this.class, settings: this.get_settings(), values: values};
+        links = `<table style="width: 100%; font-size: ${cfg('booklinksize')}; font-family: ${cfg('textfont')}; color: ${cfg('booklinkcolor')}; text-align: center;"><tr>${links}</tr></table>`;
+        var cover = `<td style="width: ${cfg('bookcoverwidth')}; vertical-align: top;"><img alt="" src="${cover}"/></td>`;
+        var blurb = `<td style="padding: 0 .5em 0 .5em; vertical-align: top; text-align: ${cfg('blurbalign')};">${descr}` +
+                    '<hr size="1" style="color: #cbe8ff; width: 250px; margin: .5em auto .25em auto;"/>' +
+                    links +
+                    '</td>';
+        var table = `<table style="color: ${cfg('bookblurbcolor')}; width: 100%; font-family: ${cfg('textfont')}; font-size: ${cfg('bookblurbsize')}; margin-bottom: 1em;" cellpadding="0" cellspacing="0">`;
+        var template = cfg('template');
+        if (template == 'left') {
+            return `${table}<tr>${cover}${blurb}</tr></table>`;
+        } else if (template == 'right') {
+            return `${table}<tr>${blurb}${cover}</tr></table>`;
+        } else if (template == 'top') {
+            return `${table}<tr>${cover}</tr><tr>${blurb}</tr></table>`;
+        }
     },
 
     set_structure: function(json) {
@@ -428,17 +431,13 @@ $.widget('nle.nlbook', $.nle.base, {
         });
         that = this.contents;
         var values = json.values;
-        console.log(values);
-        var seller_name = json.values.seller_name;
-        var seller_url = json.values.seller_url;
-        console.log(seller_name, seller_url);
-        values.seller_name = seller_name[0];
-        values.seller_url = seller_url[0];
+        //console.log(values);
         $.each(this.editors, function(i, e) {
-            set_input_value(that, e, values[e.name]);
+            set_input_value(that, e, json.values[e.name]);
         });
-        for (var i = 1; i < seller_name.length; ++i) {
-            this.add_shop(seller_name[i], seller_url[i]);
+        this.remove_shop();
+        for (var i = 0; i < json.values.retailer_name.length; ++i) {
+            this.add_shop(json.values.retailer_name[i], json.values.retailer_url[i]);
         }
     }
 
@@ -468,7 +467,7 @@ $.widget('nle.nlline', $.nle.base, {
     render: function() { return this._superApply(arguments); },
 
     render_impl: function() {
-        var sty = cfg('hrstyle');
+        var sty = cfg('hr_style');
         if (sty) {
             sty = ' style="' + sty + '"';
         } else {
@@ -531,10 +530,13 @@ $.widget('nle.genList', $.nle.base, {
         this.contents.sortable({
             handle: '.nl-editor-header',
             items: '> div',
-            containment: 'parent',
+            containment: '.nl-editor-list-contents',
             axis: 'y',
+            forcePlaceholderSize: true,
             change: function() { /*console.log('changed order!');*/ that.element._trigger('change'); }
         });
+        $('.nl-editor-list-contents').sortable('option', 'connectWith', '.nl-editor-list-contents');
+
         this.element.addClass('nl-editor-list');
         wrapper.addClass('nl-editor-contents');
     },
@@ -628,7 +630,13 @@ $.widget('nle.nltd', $.nle.genList, {
                 {name: 'Left', value: 'left'},
                 {name: 'Center', value: 'center'},
                 {name: 'Right', value: 'right'}
-            ], selected: 'left'}
+            ], selected: 'left'},
+        {name: 'textvertalign', type: 'select', placeholder: 'Vertical align',
+            options: [
+                {name: 'Top', value: 'top'},
+                {name: 'Middle', value: 'middle'},
+                {name: 'Bottom', value: 'bottom'}
+            ], selected: 'top'}
     ],
     _create: function() { this._superApply(arguments); },
     _refresh: function() { this._superApply(arguments); },
@@ -641,6 +649,7 @@ $.widget('nle.nltd', $.nle.genList, {
         var style=`background:${cfg('background')};border:${cfg('border') || 0};`;
         style += `font-family:${cfg('textfont')};font-size:${cfg('fontsize')};`;
         style += `text-align:${cfg('textalign')};`;
+        style += `vertical-align:${cfg('textvertalign')};`;
         var w = cfg('width');
         if (w) {
             style += `width:${w};`;
@@ -819,7 +828,7 @@ $.widget('nle.settings', $.nle.base, {
 
     update_settings_stack: function() {
         settings_stack[0] = this.get_values();
-        console.log("new settings (refresh)", settings_stack[0]);
+        //console.log("new settings (refresh)", settings_stack[0]);
     },
     _create: function() { this._superApply(arguments); this.update_settings_stack(); },
     _trigger: function(e) { this._superApply(arguments); },
