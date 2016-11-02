@@ -147,7 +147,6 @@
 
 .nl-editor-list-adder-link {
     display: inline-block;
-    text-align: center;
     /*border: ridge #0b93d5;*/
     width: 11%;
     text-align: center !important;
@@ -165,7 +164,7 @@ label {
     margin: .55em 0 .5em 2em;
     padding: .4em .5em .6em 1em;
     border: 1px solid white;
-    font-family: Helvetica;
+    font-family: Helvetica, sans-serif;
     font-size: 1em;
     border-right: none;
     color: white;
@@ -185,7 +184,7 @@ input, textarea, select, div.nl-editor-checkbox {
     padding: .4em .5em .6em 1em;
     margin: .55em 0 .5em 0;
     border: 0; /*1px solid white;*/
-    font-family: Helvetica;
+    font-family: Helvetica, sans-serif;
     font-size: 1em;
     border-left: none;
     border-top-right-radius: 1em;
@@ -274,7 +273,6 @@ label.textarea {
 .output-container {
     border: 3px solid gray;
     display: block;
-    border: 3px solid gray;
     height: 90vh;
     overflow-y: scroll;
     padding: 4px; /* for live-hover */
@@ -314,10 +312,7 @@ label.textarea {
 
 body {
     position: relative;
-    background-image: url("../js/images/old-letters-436501_1920.jpg");
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: left top;
+    background: url("../js/images/old-letters-436501_1920.jpg") no-repeat fixed left top;
 }
 
 
