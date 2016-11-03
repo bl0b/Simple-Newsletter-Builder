@@ -81,6 +81,11 @@ $.widget('nle.base', {
         this.element.hover(() => that._refresh(), () => that._refresh());
     },
 
+    enable_setting: function(name) {
+        this.contents_settings.find(`label[data-for=${name}] > input[type=checkbox]`).prop('checked', true);
+        this.contents_settings.find(`input[name=${name}]`).prop('disabled', false);
+    },
+
     changed: function() {
         console.log(this);
         this[this.class]('_refresh');
@@ -155,13 +160,15 @@ $.widget('nle.base', {
     },
 
     set_structure: function(json) {
-        var that = this.contents_settings;
+        var that = this;
         $.each(this.settings, function(i, e) {
-            set_input_value(that, e, json.settings[e.name]);
+            set_input_value(that.contents_settings, e, json.settings[e.name]);
         });
-        that = this.contents;
+        $.each(json.settings, function(k, v) {
+            enable_setting(that, k);
+        });
         $.each(this.editors, function(i, e) {
-            set_input_value(that, e, json.values[e.name]);
+            set_input_value(that.contents, e, json.values[e.name]);
         });
     }
 });
@@ -425,15 +432,17 @@ $.widget('nle.nlbook', $.nle.base, {
     },
 
     set_structure: function(json) {
-        var that = this.contents_settings;
+        var that = this;
         $.each(this.settings, function(i, e) {
-            set_input_value(that, e, json.settings[e.name]);
+            set_input_value(that.contents_settings, e, json.settings[e.name]);
         });
-        that = this.contents;
+        $.each(json.settings, function(k, v) {
+            enable_setting(that, k);
+        });
         var values = json.values;
         //console.log(values);
         $.each(this.editors, function(i, e) {
-            set_input_value(that, e, json.values[e.name]);
+            set_input_value(that.contents, e, json.values[e.name]);
         });
         this.remove_shop();
         for (var i = 0; i < json.values.retailer_name.length; ++i) {
@@ -600,6 +609,9 @@ $.widget('nle.genList', $.nle.base, {
         var that = this;
         $.each(this.settings, function(i, e) {
             set_input_value(that.contents_settings, e, json.settings[e.name]);
+        });
+        $.each(json.settings, function(k, v) {
+            enable_setting(that, k);
         });
         this.contents.empty();
         $.each(json.contents, function(i, struc) {

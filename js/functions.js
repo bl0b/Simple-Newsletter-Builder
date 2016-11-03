@@ -171,6 +171,11 @@ function add_setting(that, ui, x) {
     add_input(that, ui, x, true);
 }
 
+function enable_setting(that, name) {
+    that.contents_settings.find(`label[data-for=${name}] > input[type=checkbox]`).prop('checked', true);
+    that.contents_settings.find(`input[name=${name}]`).prop('disabled', false);
+}
+
 /* http://stackoverflow.com/a/3627747 */
 function rgb2hex(rgb) {
     if (rgb === undefined || /^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
