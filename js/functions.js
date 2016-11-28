@@ -28,7 +28,7 @@ function detach_settings() {
 }
 
 function render_image(alt, url) {
-    return `<img src="${url}" alt="${alt}" />`;
+    return `<img src="${url}" alt="${alt}" style="margin: 0 !important; padding: 0 !important; border: 0 !important; max-width: 100% !important; height: auto !important; float: none !important;"/>`;
 }
 
 function render_link(text, url, img='', img_pos='') {

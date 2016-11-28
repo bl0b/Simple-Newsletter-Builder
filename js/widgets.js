@@ -414,20 +414,20 @@ $.widget('nle.nlbook', $.nle.base, {
         }
         links = links.join('');
         //console.log("book links", names, urls, links);
-        links = `<table style="width: 100%; font-size: ${cfg('booklinksize')}; font-family: ${cfg('textfont')}; color: ${cfg('booklinkcolor')}; text-align: center;"><tr>${links}</tr></table>`;
-        var cover = `<td style="width: ${cfg('bookcoverwidth')}; vertical-align: top;"><img alt="" src="${cover}"/></td>`;
+        links = `<table style="width: 100%; font-size: ${cfg('booklinksize')}; font-family: ${cfg('textfont')}; color: ${cfg('booklinkcolor')}; text-align: center;"><tbody><tr>${links}</tr></tbody></table>`;
+        var cover = `<td style="width: ${cfg('bookcoverwidth')}; vertical-align: top;">${render_image("", cover)}</td>`;
         var blurb = `<td style="padding: 0 .5em 0 .5em; vertical-align: top; text-align: ${cfg('blurbalign')};">${descr}` +
                     '<hr size="1" style="color: #cbe8ff; width: 250px; margin: .5em auto .25em auto;"/>' +
                     links +
                     '</td>';
-        var table = `<table style="color: ${cfg('bookblurbcolor')}; width: 100%; font-family: ${cfg('textfont')}; font-size: ${cfg('bookblurbsize')}; margin-bottom: 1em;" cellpadding="0" cellspacing="0">`;
+        var table = `<table style="color: ${cfg('bookblurbcolor')}; width: 100%; font-family: ${cfg('textfont')}; font-size: ${cfg('bookblurbsize')}; margin-bottom: 1em;" cellpadding="0" cellspacing="0"><tbody>`;
         var template = cfg('template');
         if (template == 'left') {
             return `${table}<tr>${cover}${blurb}</tr></table>`;
         } else if (template == 'right') {
             return `${table}<tr>${blurb}${cover}</tr></table>`;
         } else if (template == 'top') {
-            return `${table}<tr>${cover}</tr><tr>${blurb}</tr></table>`;
+            return `${table}<tr>${cover}</tr><tr>${blurb}</tr></tbody></table>`;
         }
     },
 
